@@ -1,5 +1,6 @@
 package com.psu.sweng888.gthenewapp.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,19 +31,28 @@ public class HomeFragment extends Fragment {
         // Initialize Firebase manager
         firebaseDatabaseManager = new FirebaseDatabaseManager(getActivity());
         
-        // Set up the test button
-        Button testButton = view.findViewById(R.id.test_button);
-        if (testButton != null) {
-            testButton.setOnClickListener(new View.OnClickListener() {
+        // Set up the send email button
+        Button sendEmailButton = view.findViewById(R.id.send_email_button);
+        if (sendEmailButton != null) {
+            sendEmailButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "Test button clicked");
-                    Toast.makeText(getActivity(), "HomeFragment is working! 🎉", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Send Email button clicked");
+                    Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                    emailIntent.setType("message/rfc822");
+                    emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{""});
+                    emailIntent.putExtra(Intent.EXTRA_SUBJECT, "");
+                    emailIntent.putExtra(Intent.EXTRA_TEXT, "");
+                    try {
+                        startActivity(Intent.createChooser(emailIntent, "Send email..."));
+                    } catch (android.content.ActivityNotFoundException ex) {
+                        Toast.makeText(getActivity(), "No email clients installed.", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
-            Log.d(TAG, "Test button set up successfully");
+            Log.d(TAG, "Send Email button set up successfully");
         } else {
-            Log.e(TAG, "Test button not found in layout");
+            Log.e(TAG, "Send Email button not found in layout");
         }
         
         // Set up the populate Firebase button

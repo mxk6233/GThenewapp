@@ -20,6 +20,7 @@ public class BookDatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_AUTHOR = "author";
     private static final String KEY_ISBN = "isbn";
     private static final String KEY_PUBLISHER = "publisher";
+    private static final String KEY_COVER_IMAGE_URI = "cover_image_uri";
 
     private static final String TABLE_PODCASTS = "podcasts";
     private static final String KEY_PODCAST_ID = "id";
@@ -35,9 +36,12 @@ public class BookDatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_PRODUCT_PRICE = "price";
     private static final String KEY_PRODUCT_DESCRIPTION = "description";
 
+    private Context mContext; // Added mContext field
+
     public BookDatabaseHelper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         Log.d(TAG, "BookDatabaseHelper initialized with database: " + DATABASE_NAME);
+        this.mContext = context; // Initialize mContext
         
         // Check if database file exists
         String dbPath = context.getDatabasePath(DATABASE_NAME).getAbsolutePath();
@@ -69,7 +73,8 @@ public class BookDatabaseHelper extends SQLiteOpenHelper {
                 KEY_TITLE + " TEXT," +
                 KEY_AUTHOR + " TEXT," +
                 KEY_ISBN + " TEXT," +
-                KEY_PUBLISHER + " TEXT" +
+                KEY_PUBLISHER + " TEXT," +
+                KEY_COVER_IMAGE_URI + " TEXT" +
                 ")";
         return QUERY_CREATE_MOVIES_TABLE;
     }
@@ -106,9 +111,15 @@ public class BookDatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_AUTHOR, book.getAuthor());
         values.put(KEY_ISBN, book.getIsbn());
         values.put(KEY_PUBLISHER, book.getPublisher());
+        values.put(KEY_COVER_IMAGE_URI, book.getCoverImageUri());
         /** Insert the values on the TABLE_MOVIES */
         long result = database.insert(TABLE_BOOKS, null, values);
         Log.d(TAG, "Book insert result: " + result + " (row ID)");
+        if (result == -1) {
+            android.widget.Toast.makeText(mContext, "Failed to add book to SQLite", android.widget.Toast.LENGTH_SHORT).show();
+        } else {
+            android.widget.Toast.makeText(mContext, "Book added to SQLite!", android.widget.Toast.LENGTH_SHORT).show();
+        }
         /** Close the connection with the database */
         database.close();
     }
@@ -144,15 +155,26 @@ public class BookDatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = database.rawQuery(selectQuery, null);
 
         Log.d(TAG, "Cursor count: " + cursor.getCount());
+        Log.d(TAG, "Column count: " + cursor.getColumnCount());
+        String[] columnNames = cursor.getColumnNames();
+        for (int i = 0; i < columnNames.length; i++) {
+            Log.d(TAG, "Column " + i + ": " + columnNames[i]);
+        }
+
+        int idxTitle = cursor.getColumnIndex(KEY_TITLE);
+        int idxAuthor = cursor.getColumnIndex(KEY_AUTHOR);
+        int idxIsbn = cursor.getColumnIndex(KEY_ISBN);
+        int idxPublisher = cursor.getColumnIndex(KEY_PUBLISHER);
+        int idxCoverUri = cursor.getColumnIndex(KEY_COVER_IMAGE_URI);
 
         if (cursor.moveToFirst()){
             do {
-                Book book = new Book(
-                        cursor.getString(1), // TITLE
-                        cursor.getString(2), // AUTHOR
-                        cursor.getString(3), // ISBN
-                        cursor.getString(4) // PUBLISHER
-                );
+                String title = idxTitle != -1 ? cursor.getString(idxTitle) : "";
+                String author = idxAuthor != -1 ? cursor.getString(idxAuthor) : "";
+                String isbn = idxIsbn != -1 ? cursor.getString(idxIsbn) : "";
+                String publisher = idxPublisher != -1 ? cursor.getString(idxPublisher) : "";
+                String coverUri = idxCoverUri != -1 ? cursor.getString(idxCoverUri) : null;
+                Book book = new Book(title, author, isbn, publisher, coverUri);
                 bookList.add(book);
                 Log.d(TAG, "Retrieved book: " + book.getTitle() + " by " + book.getAuthor());
             } while (cursor.moveToNext());
@@ -198,6 +220,14 @@ public class BookDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getWritableDatabase();
         int deletedRows = database.delete(TABLE_BOOKS, null, null);
         Log.d(TAG, "Deleted " + deletedRows + " rows from database");
+        database.close();
+    }
+
+    public void deleteBook(Book book) {
+        Log.d(TAG, "Deleting book from database: " + book.getTitle() + " (ISBN: " + book.getIsbn() + ")");
+        SQLiteDatabase database = this.getWritableDatabase();
+        int deletedRows = database.delete(TABLE_BOOKS, KEY_ISBN + " = ?", new String[]{book.getIsbn()});
+        Log.d(TAG, "Deleted " + deletedRows + " row(s) for book with ISBN: " + book.getIsbn());
         database.close();
     }
 
@@ -263,6 +293,13 @@ public class BookDatabaseHelper extends SQLiteOpenHelper {
         addPodcast(new Podcast("Radiolab", "Jad Abumrad, Robert Krulwich", 600, "WNYC Studios"));
         Log.d(TAG, "Sample podcasts added to database");
     }
+    public void deletePodcast(Podcast podcast) {
+        Log.d(TAG, "Deleting podcast from database: " + podcast.getTitle());
+        SQLiteDatabase db = this.getWritableDatabase();
+        int deletedRows = db.delete(TABLE_PODCASTS, KEY_PODCAST_TITLE + " = ?", new String[]{podcast.getTitle()});
+        Log.d(TAG, "Deleted " + deletedRows + " row(s) for podcast with title: " + podcast.getTitle());
+        db.close();
+    }
 
     // --- PRODUCTS CRUD ---
     public void addProduct(Product product) {
@@ -325,5 +362,12 @@ public class BookDatabaseHelper extends SQLiteOpenHelper {
         addProduct(new Product("Surface Pro 9", "Microsoft", 1399.99, "Microsoft 2-in-1 laptop/tablet, 13-inch touchscreen, Intel Evo platform."));
         addProduct(new Product("Sony WH-1000XM5", "Sony", 399.99, "Industry-leading noise-canceling wireless headphones, 30-hour battery life."));
         Log.d(TAG, "Sample products added to database");
+    }
+    public void deleteProduct(Product product) {
+        Log.d(TAG, "Deleting product from database: " + product.getName());
+        SQLiteDatabase db = this.getWritableDatabase();
+        int deletedRows = db.delete(TABLE_PRODUCTS, KEY_PRODUCT_NAME + " = ?", new String[]{product.getName()});
+        Log.d(TAG, "Deleted " + deletedRows + " row(s) for product with name: " + product.getName());
+        db.close();
     }
 }

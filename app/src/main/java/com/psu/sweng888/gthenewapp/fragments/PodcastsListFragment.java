@@ -135,60 +135,27 @@ public class PodcastsListFragment extends Fragment {
         return view;
     }
     private void loadPodcasts(ArrayAdapter<String> autoAdapter) {
-        try {
-            firebaseDatabaseManager.getAllPodcasts(task -> {
-                List<Podcast> podcasts = null;
-                try {
-                    podcasts = task.getResult();
-                } catch (Exception e) {
-                    Log.e(TAG, "Exception getting podcasts from Firebase: " + e.getMessage(), e);
-                    Toast.makeText(getActivity(), "Error loading podcasts from Firebase", Toast.LENGTH_SHORT).show();
-                }
-                if (podcasts == null || podcasts.isEmpty()) {
-                    if (dbHelper.isPodcastsEmpty()) dbHelper.populatePodcastsDatabase();
-                    podcasts = dbHelper.getAllPodcasts();
-                }
-                final List<Podcast> finalPodcasts = podcasts;
-                getActivity().runOnUiThread(() -> {
-                    try {
-                        podcastAdapter = new PodcastAdapter(finalPodcasts);
-                        mRecyclerView.setAdapter(podcastAdapter);
-                        autoAdapter.clear();
-                        for (Podcast p : finalPodcasts) autoAdapter.add(p.getTitle() + " — " + p.getHost() + " — Episodes: " + p.getEpisodeCount() + " — " + p.getPublisher());
-                        autoAdapter.notifyDataSetChanged();
-                        Log.d(TAG, "Loaded " + finalPodcasts.size() + " podcasts");
-                        Toast.makeText(getActivity(), "Loaded " + finalPodcasts.size() + " podcasts", Toast.LENGTH_SHORT).show();
-                    } catch (Exception e) {
-                        Log.e(TAG, "Exception updating UI with podcasts: " + e.getMessage(), e);
-                        Toast.makeText(getActivity(), "Error updating podcast list", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            });
-        } catch (Exception e) {
-            Log.e(TAG, "Exception in loadPodcasts: " + e.getMessage(), e);
-            Toast.makeText(getActivity(), "Error loading podcasts: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
+        Log.d(TAG, "Loading podcasts from SQLite only (ignore Firebase)");
+        List<Podcast> podcasts = dbHelper.getAllPodcasts();
+        final List<Podcast> finalPodcasts = podcasts;
+        getActivity().runOnUiThread(() -> {
+            try {
+                podcastAdapter = new PodcastAdapter(finalPodcasts);
+                mRecyclerView.setAdapter(podcastAdapter);
+                autoAdapter.clear();
+                for (Podcast p : finalPodcasts) autoAdapter.add(p.getTitle() + " — " + p.getHost() + " — Episodes: " + p.getEpisodeCount() + " — " + p.getPublisher());
+                autoAdapter.notifyDataSetChanged();
+                Log.d(TAG, "Loaded " + finalPodcasts.size() + " podcasts");
+                Toast.makeText(getActivity(), "Loaded " + finalPodcasts.size() + " podcasts", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Log.e(TAG, "Exception updating UI with podcasts: " + e.getMessage(), e);
+                Toast.makeText(getActivity(), "Error updating podcast list", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
     public void refreshPodcasts() {
-        if (firebaseDatabaseManager.isUserAuthenticated()) {
-            firebaseDatabaseManager.getAllPodcasts(task -> {
-                List<Podcast> podcasts = task.getResult();
-                if (podcasts == null || podcasts.isEmpty()) {
-                    if (dbHelper.isPodcastsEmpty()) dbHelper.populatePodcastsDatabase();
-                    podcasts = dbHelper.getAllPodcasts();
-                }
-                final List<Podcast> finalPodcasts = podcasts;
-                getActivity().runOnUiThread(() -> {
-                    podcastAdapter = new PodcastAdapter(finalPodcasts);
-                    mRecyclerView.setAdapter(podcastAdapter);
-                    autoAdapter.clear();
-                    for (Podcast p : finalPodcasts) autoAdapter.add(p.getTitle() + " — " + p.getHost() + " — Episodes: " + p.getEpisodeCount() + " — " + p.getPublisher());
-                    autoAdapter.notifyDataSetChanged();
-                });
-            });
-        } else {
-            loadPodcasts(autoAdapter);
-        }
+        Log.d(TAG, "Refreshing podcasts list (SQLite only)...");
+        loadPodcasts(autoAdapter);
     }
     private void resetDatabase() {
         dbHelper.clearAllPodcasts();
@@ -208,8 +175,9 @@ public class PodcastsListFragment extends Fragment {
                         .addToBackStack(null)
                         .commit();
                 } else if (which == 1) {
-                    dbHelper.clearAllPodcasts(); // For demo, replace with deletePodcast(podcast) for real app
-                    firebaseDatabaseManager.addPodcast(podcast, task -> loadPodcasts(autoAdapter));
+                    // Delete
+                    dbHelper.deletePodcast(podcast);
+                    refreshPodcasts();
                     Toast.makeText(getActivity(), "Podcast deleted", Toast.LENGTH_SHORT).show();
                 }
             })

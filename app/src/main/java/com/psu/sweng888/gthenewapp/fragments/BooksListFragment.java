@@ -113,6 +113,8 @@ public class BooksListFragment extends Fragment {
         Button pushFirebaseButton = view.findViewById(R.id.push_firebase_button);
         if (pushFirebaseButton != null) {
             pushFirebaseButton.setOnClickListener(v -> {
+                Toast.makeText(getActivity(), "Push to Firebase started", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Push to Firebase started");
                 if (firebaseDatabaseManager.isUserAuthenticated()) {
                     List<Book> books = bookDatabaseHelper.getAllRecords();
                     if (books != null && !books.isEmpty()) {
@@ -120,16 +122,24 @@ public class BooksListFragment extends Fragment {
                         for (Book book : books) {
                             firebaseDatabaseManager.addBook(book, task -> {
                                 completed[0]++;
+                                if (task.isSuccessful()) {
+                                    Log.d(TAG, "Book pushed to Firebase: " + book.getTitle());
+                                } else {
+                                    Log.e(TAG, "Failed to push book to Firebase: " + book.getTitle());
+                                }
                                 if (completed[0] == books.size()) {
                                     getActivity().runOnUiThread(() -> Toast.makeText(getActivity(), "Pushed " + books.size() + " books to Firebase", Toast.LENGTH_SHORT).show());
+                                    Log.d(TAG, "All books pushed to Firebase");
                                 }
                             });
                         }
                     } else {
                         Toast.makeText(getActivity(), "No books in SQLite to push", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "No books in SQLite to push");
                     }
                 } else {
                     Toast.makeText(getActivity(), "Not authenticated with Firebase", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Not authenticated with Firebase");
                 }
             });
         }
@@ -155,60 +165,40 @@ public class BooksListFragment extends Fragment {
         
         // Load books
         loadBooks(autoAdapter);
+
+        // Always set up long-press for edit/delete after adapter is set
+        mRecyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getActivity(), mRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {}
+            @Override
+            public void onLongItemClick(View view, int position) {
+                if (bookAdapter != null && position >= 0 && position < bookAdapter.getItemCount()) {
+                    Book book = bookAdapter.getBookAt(position);
+                    showEditDeleteDialog(book);
+                }
+            }
+        }));
         
         return view;
     }
     
     private void loadBooks(ArrayAdapter<String> autoAdapter) {
-        // Check if user is authenticated with Firebase
-        boolean isFirebaseAuthenticated = firebaseDatabaseManager.isUserAuthenticated();
-        Log.d(TAG, "Firebase authentication status: " + isFirebaseAuthenticated);
-        
-        if (isFirebaseAuthenticated) {
-            // Try to load from Firebase first
-            Log.d(TAG, "User is Firebase authenticated, loading from Firebase...");
-            firebaseDatabaseManager.getAllBooks(task -> {
-                List<Book> books = task.getResult();
-                if (books == null || books.isEmpty()) {
-                    bookDatabaseHelper.populateMoviesDatabase();
-                    books = bookDatabaseHelper.getAllRecords();
-                }
-                final List<Book> finalBooks = books;
-                getActivity().runOnUiThread(() -> {
-                    bookAdapter = new BookAdapter(finalBooks);
-                    mRecyclerView.setAdapter(bookAdapter);
-                    autoAdapter.clear();
-                    for (Book b : finalBooks) autoAdapter.add(b.getTitle() + " — " + b.getAuthor() + " — " + b.getIsbn() + " — " + b.getPublisher());
-                    autoAdapter.notifyDataSetChanged();
-                    Log.d(TAG, "Displaying " + finalBooks.size() + " books from Firebase/SQLite");
-                });
-            });
-        } else {
-            // Not Firebase authenticated, use SQLite
-            Log.d(TAG, "User not Firebase authenticated, loading from SQLite...");
-            if (bookDatabaseHelper.isDatabaseEmpty()) {
-                bookDatabaseHelper.populateMoviesDatabase();
-            }
-            List<Book> books = bookDatabaseHelper.getAllRecords();
-            final List<Book> finalBooks = books;
-            getActivity().runOnUiThread(() -> {
-                bookAdapter = new BookAdapter(finalBooks);
-                mRecyclerView.setAdapter(bookAdapter);
-                autoAdapter.clear();
-                for (Book b : finalBooks) autoAdapter.add(b.getTitle() + " — " + b.getAuthor() + " — " + b.getIsbn() + " — " + b.getPublisher());
-                autoAdapter.notifyDataSetChanged();
-                Log.d(TAG, "Displaying " + finalBooks.size() + " books from SQLite");
-            });
-        }
+        Log.d(TAG, "Loading books from SQLite only (ignore Firebase)");
+        List<Book> books = bookDatabaseHelper.getAllRecords();
+        final List<Book> finalBooks = books;
+        getActivity().runOnUiThread(() -> {
+            bookAdapter = new BookAdapter(finalBooks);
+            mRecyclerView.setAdapter(bookAdapter);
+            autoAdapter.clear();
+            for (Book b : finalBooks) autoAdapter.add(b.getTitle() + " — " + b.getAuthor() + " — " + b.getIsbn() + " — " + b.getPublisher());
+            autoAdapter.notifyDataSetChanged();
+            Log.d(TAG, "Displaying " + finalBooks.size() + " books from SQLite");
+        });
     }
     
     private void loadFromSQLite() {
         // Ensure SQLite has sample data
-        if (bookDatabaseHelper.isDatabaseEmpty()) {
-            Log.d(TAG, "SQLite database is empty, populating with sample data...");
-            bookDatabaseHelper.populateMoviesDatabase();
-        }
-        
+        // REMOVE: if (bookDatabaseHelper.isDatabaseEmpty()) { Log.d(TAG, "SQLite database is empty, populating with sample data..."); bookDatabaseHelper.populateMoviesDatabase(); }
         List<Book> books = bookDatabaseHelper.getAllRecords();
         Log.d(TAG, "SQLite returned " + books.size() + " books");
         
@@ -219,11 +209,7 @@ public class BooksListFragment extends Fragment {
         }
         
         // Fallback: If still no books, force populate with sample data
-        if (books.isEmpty()) {
-            Log.w(TAG, "Still no books after population, forcing sample data...");
-            forcePopulateSampleData();
-            books = bookDatabaseHelper.getAllRecords();
-        }
+        // REMOVE: if (books.isEmpty()) { Log.w(TAG, "Still no books after population, forcing sample data..."); forcePopulateSampleData(); books = bookDatabaseHelper.getAllRecords(); }
         
         // Create final variable for lambda
         final List<Book> finalBooks = books;
@@ -305,7 +291,7 @@ public class BooksListFragment extends Fragment {
     
     // Public method to refresh the books list
     public void refreshBooks() {
-        Log.d(TAG, "Refreshing books list...");
+        Log.d(TAG, "Refreshing books list (SQLite only)...");
         loadBooks(autoAdapter);
     }
 
@@ -331,8 +317,8 @@ public class BooksListFragment extends Fragment {
                         .commit();
                 } else if (which == 1) {
                     // Delete
-                    bookDatabaseHelper.clearAllBooks(); // Remove all books and repopulate (for demo, replace with deleteBook(book) for real app)
-                    firebaseDatabaseManager.deleteBook(book.getIsbn(), task -> refreshBooks());
+                    bookDatabaseHelper.deleteBook(book);
+                    if (bookAdapter != null) bookAdapter.deleteBook(book);
                     Toast.makeText(getActivity(), "Book deleted", Toast.LENGTH_SHORT).show();
                 }
             })

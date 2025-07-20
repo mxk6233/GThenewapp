@@ -30,10 +30,19 @@ public class AddPodcastFragment extends Fragment {
         publisherInput = view.findViewById(R.id.input_podcast_publisher);
         saveButton = view.findViewById(R.id.save_podcast_button);
         firebaseDatabaseManager = new FirebaseDatabaseManager(getActivity());
-        saveButton.setOnClickListener(v -> savePodcast());
+        saveButton.setOnClickListener(v -> {
+            Toast.makeText(getActivity(), "Save button clicked", Toast.LENGTH_SHORT).show();
+            try {
+                savePodcast();
+            } catch (Exception e) {
+                Toast.makeText(getActivity(), "Exception: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+            }
+        });
         return view;
     }
     private void savePodcast() {
+        Toast.makeText(getActivity(), "savePodcast() called", Toast.LENGTH_SHORT).show();
         String title = titleInput.getText().toString().trim();
         String host = hostInput.getText().toString().trim();
         String episodeCountStr = episodeCountInput.getText().toString().trim();
@@ -50,13 +59,21 @@ public class AddPodcastFragment extends Fragment {
             return;
         }
         Podcast podcast = new Podcast(title, host, episodeCount, publisher);
+        Toast.makeText(getActivity(), "Calling addPodcast...", Toast.LENGTH_SHORT).show();
         firebaseDatabaseManager.addPodcast(podcast, task -> {
+            Toast.makeText(getActivity(), "addPodcast callback", Toast.LENGTH_SHORT).show();
             if (task.isSuccessful()) {
                 Toast.makeText(getActivity(), "Podcast added!", Toast.LENGTH_SHORT).show();
                 titleInput.setText("");
                 hostInput.setText("");
                 episodeCountInput.setText("");
                 publisherInput.setText("");
+                // Navigate to PodcastsListFragment
+                requireActivity().runOnUiThread(() -> {
+                    requireActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new com.psu.sweng888.gthenewapp.fragments.PodcastsListFragment())
+                        .commit();
+                });
             } else {
                 Toast.makeText(getActivity(), "Failed to add podcast", Toast.LENGTH_SHORT).show();
             }

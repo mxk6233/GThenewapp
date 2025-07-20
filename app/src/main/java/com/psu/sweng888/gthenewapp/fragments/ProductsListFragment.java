@@ -135,60 +135,27 @@ public class ProductsListFragment extends Fragment {
         return view;
     }
     private void loadProducts(ArrayAdapter<String> autoAdapter) {
-        try {
-            firebaseDatabaseManager.getAllProducts(task -> {
-                List<Product> products = null;
-                try {
-                    products = task.getResult();
-                } catch (Exception e) {
-                    Log.e(TAG, "Exception getting products from Firebase: " + e.getMessage(), e);
-                    Toast.makeText(getActivity(), "Error loading products from Firebase", Toast.LENGTH_SHORT).show();
-                }
-                if (products == null || products.isEmpty()) {
-                    if (dbHelper.isProductsEmpty()) dbHelper.populateProductsDatabase();
-                    products = dbHelper.getAllProducts();
-                }
-                final List<Product> finalProducts = products;
-                getActivity().runOnUiThread(() -> {
-                    try {
-                        productAdapter = new ProductAdapter(finalProducts);
-                        mRecyclerView.setAdapter(productAdapter);
-                        autoAdapter.clear();
-                        for (Product p : finalProducts) autoAdapter.add(p.getName() + " — " + p.getBrand() + " — $" + String.format("%.2f", p.getPrice()) + " — " + p.getDescription());
-                        autoAdapter.notifyDataSetChanged();
-                        Log.d(TAG, "Loaded " + finalProducts.size() + " products");
-                        Toast.makeText(getActivity(), "Loaded " + finalProducts.size() + " products", Toast.LENGTH_SHORT).show();
-                    } catch (Exception e) {
-                        Log.e(TAG, "Exception updating UI with products: " + e.getMessage(), e);
-                        Toast.makeText(getActivity(), "Error updating product list", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            });
-        } catch (Exception e) {
-            Log.e(TAG, "Exception in loadProducts: " + e.getMessage(), e);
-            Toast.makeText(getActivity(), "Error loading products: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
+        Log.d(TAG, "Loading products from SQLite only (ignore Firebase)");
+        List<Product> products = dbHelper.getAllProducts();
+        final List<Product> finalProducts = products;
+        getActivity().runOnUiThread(() -> {
+            try {
+                productAdapter = new ProductAdapter(finalProducts);
+                mRecyclerView.setAdapter(productAdapter);
+                autoAdapter.clear();
+                for (Product p : finalProducts) autoAdapter.add(p.getName() + " — " + p.getBrand() + " — $" + String.format("%.2f", p.getPrice()) + " — " + p.getDescription());
+                autoAdapter.notifyDataSetChanged();
+                Log.d(TAG, "Loaded " + finalProducts.size() + " products");
+                Toast.makeText(getActivity(), "Loaded " + finalProducts.size() + " products", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Log.e(TAG, "Exception updating UI with products: " + e.getMessage(), e);
+                Toast.makeText(getActivity(), "Error updating product list", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
     public void refreshProducts() {
-        if (firebaseDatabaseManager.isUserAuthenticated()) {
-            firebaseDatabaseManager.getAllProducts(task -> {
-                List<Product> products = task.getResult();
-                if (products == null || products.isEmpty()) {
-                    if (dbHelper.isProductsEmpty()) dbHelper.populateProductsDatabase();
-                    products = dbHelper.getAllProducts();
-                }
-                final List<Product> finalProducts = products;
-                getActivity().runOnUiThread(() -> {
-                    productAdapter = new ProductAdapter(finalProducts);
-                    mRecyclerView.setAdapter(productAdapter);
-                    autoAdapter.clear();
-                    for (Product p : finalProducts) autoAdapter.add(p.getName() + " — " + p.getBrand() + " — $" + String.format("%.2f", p.getPrice()) + " — " + p.getDescription());
-                    autoAdapter.notifyDataSetChanged();
-                });
-            });
-        } else {
-            loadProducts(autoAdapter);
-        }
+        Log.d(TAG, "Refreshing products list (SQLite only)...");
+        loadProducts(autoAdapter);
     }
     private void resetDatabase() {
         dbHelper.clearAllProducts();
@@ -208,8 +175,9 @@ public class ProductsListFragment extends Fragment {
                         .addToBackStack(null)
                         .commit();
                 } else if (which == 1) {
-                    dbHelper.clearAllProducts(); // For demo, replace with deleteProduct(product) for real app
-                    firebaseDatabaseManager.addProduct(product, task -> loadProducts(new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line)));
+                    // Delete
+                    dbHelper.deleteProduct(product);
+                    refreshProducts();
                     Toast.makeText(getActivity(), "Product deleted", Toast.LENGTH_SHORT).show();
                 }
             })

@@ -30,10 +30,19 @@ public class AddProductFragment extends Fragment {
         descriptionInput = view.findViewById(R.id.input_product_description);
         saveButton = view.findViewById(R.id.save_product_button);
         firebaseDatabaseManager = new FirebaseDatabaseManager(getActivity());
-        saveButton.setOnClickListener(v -> saveProduct());
+        saveButton.setOnClickListener(v -> {
+            Toast.makeText(getActivity(), "Save button clicked", Toast.LENGTH_SHORT).show();
+            try {
+                saveProduct();
+            } catch (Exception e) {
+                Toast.makeText(getActivity(), "Exception: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+            }
+        });
         return view;
     }
     private void saveProduct() {
+        Toast.makeText(getActivity(), "saveProduct() called", Toast.LENGTH_SHORT).show();
         String name = nameInput.getText().toString().trim();
         String brand = brandInput.getText().toString().trim();
         String priceStr = priceInput.getText().toString().trim();
@@ -50,13 +59,21 @@ public class AddProductFragment extends Fragment {
             return;
         }
         Product product = new Product(name, brand, price, description);
+        Toast.makeText(getActivity(), "Calling addProduct...", Toast.LENGTH_SHORT).show();
         firebaseDatabaseManager.addProduct(product, task -> {
+            Toast.makeText(getActivity(), "addProduct callback", Toast.LENGTH_SHORT).show();
             if (task.isSuccessful()) {
                 Toast.makeText(getActivity(), "Product added!", Toast.LENGTH_SHORT).show();
                 nameInput.setText("");
                 brandInput.setText("");
                 priceInput.setText("");
                 descriptionInput.setText("");
+                // Navigate to ProductsListFragment
+                requireActivity().runOnUiThread(() -> {
+                    requireActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new com.psu.sweng888.gthenewapp.fragments.ProductsListFragment())
+                        .commit();
+                });
             } else {
                 Toast.makeText(getActivity(), "Failed to add product", Toast.LENGTH_SHORT).show();
             }

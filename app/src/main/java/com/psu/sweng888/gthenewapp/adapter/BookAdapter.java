@@ -15,6 +15,9 @@ import java.util.List;
 
 import com.psu.sweng888.gthenewapp.R;
 import com.psu.sweng888.gthenewapp.data.Book;
+import android.net.Uri;
+import android.graphics.BitmapFactory;
+import android.graphics.Bitmap;
 
 public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder> {
 
@@ -38,17 +41,36 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     @Override
     public void onBindViewHolder(@NonNull BookViewHolder holder, int position) {
         Book book = bookList.get(position);
-        holder.bookTitle.setText(book.getTitle());
-        holder.bookAuthor.setText(book.getAuthor());
-        holder.bookIsbn.setText(book.getIsbn());
-        holder.bookPublisher.setText(book.getPublisher());
-        holder.itemImage.setImageResource(book.getImageResourceId());
+        holder.bookTitle.setText(book.getTitle() != null ? book.getTitle() : "");
+        holder.bookAuthor.setText(book.getAuthor() != null ? book.getAuthor() : "");
+        holder.bookIsbn.setText(book.getIsbn() != null ? book.getIsbn() : "");
+        holder.bookPublisher.setText(book.getPublisher() != null ? book.getPublisher() : "");
+        if (book.getCoverImageUri() != null && !book.getCoverImageUri().isEmpty()) {
+            try {
+                holder.itemImage.setImageURI(Uri.parse(book.getCoverImageUri()));
+            } catch (Exception e) {
+                holder.itemImage.setImageResource(R.drawable.ic_book);
+            }
+        } else {
+            holder.itemImage.setImageResource(R.drawable.ic_book);
+        }
     }
 
     /** Added a new method to include a new Book, and update the bookList
      * This will dynamically update the RecyclerView to incorporate the new Book*/
     public void addBook(Book book) {
         bookList.add(book);
+        notifyDataSetChanged();
+    }
+
+    public void deleteBook(Book book) {
+        int index = bookList.indexOf(book);
+        if (index != -1) {
+            bookList.remove(index);
+            notifyItemRemoved(index);
+        }
+        // Also remove from bookListFull for search
+        bookListFull.remove(book);
         notifyDataSetChanged();
     }
 
@@ -68,6 +90,10 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
             }
         }
         notifyDataSetChanged();
+    }
+
+    public Book getBookAt(int position) {
+        return bookList.get(position);
     }
 
     @Override

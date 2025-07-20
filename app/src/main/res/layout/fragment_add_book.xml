@@ -28,6 +28,20 @@
         android:layout_height="wrap_content"
         android:hint="Publisher"
         android:layout_marginBottom="24dp"/>
+    <ImageView
+        android:id="@+id/book_cover_image"
+        android:layout_width="120dp"
+        android:layout_height="160dp"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/ic_book"
+        android:scaleType="centerCrop"
+        android:layout_marginBottom="12dp"/>
+    <Button
+        android:id="@+id/select_cover_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select Cover Image"
+        android:layout_marginBottom="16dp"/>
     <Button
         android:id="@+id/save_book_button"
         android:layout_width="match_parent"

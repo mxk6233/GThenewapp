@@ -62,14 +62,20 @@ public class FirebaseDatabaseManager {
 
     // Add book to Firebase and sync to SQLite
     public void addBook(Book book, OnCompleteListener<Void> listener) {
+        // Always add to SQLite
+        mSqliteHelper.addBook(book);
+        Log.d(TAG, "Book added to SQLite: " + book.getTitle());
+
         if (mAuth.getCurrentUser() == null) {
-            Log.e(TAG, "User not authenticated");
+            Log.e(TAG, "User not authenticated, skipping Firebase add");
+            if (listener != null) {
+                listener.onComplete(Tasks.forResult(null));
+            }
             return;
         }
 
         String userId = mAuth.getCurrentUser().getUid();
         String bookId = mDatabase.child("users").child(userId).child("books").push().getKey();
-        
         Map<String, Object> bookValues = new HashMap<>();
         bookValues.put("title", book.getTitle());
         bookValues.put("author", book.getAuthor());
@@ -82,8 +88,6 @@ public class FirebaseDatabaseManager {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        // Also save to SQLite for offline access
-                        mSqliteHelper.addBook(book);
                         Log.d(TAG, "Book added to Firebase successfully");
                         if (listener != null) {
                             listener.onComplete(Tasks.forResult(null));
@@ -425,8 +429,11 @@ public class FirebaseDatabaseManager {
 
     // --- PODCASTS ---
     public void addPodcast(Podcast podcast, OnCompleteListener<Void> listener) {
+        // Always add to SQLite
+        mSqliteHelper.addPodcast(podcast);
         if (mAuth.getCurrentUser() == null) {
-            Log.e(TAG, "User not authenticated");
+            Log.e(TAG, "User not authenticated, skipping Firebase add");
+            if (listener != null) listener.onComplete(Tasks.forResult(null));
             return;
         }
         String userId = mAuth.getCurrentUser().getUid();
@@ -440,7 +447,6 @@ public class FirebaseDatabaseManager {
         mDatabase.child("users").child(userId).child("podcasts").child(podcastId)
                 .setValue(podcastValues)
                 .addOnSuccessListener(aVoid -> {
-                    mSqliteHelper.addPodcast(podcast);
                     if (listener != null) listener.onComplete(Tasks.forResult(null));
                 })
                 .addOnFailureListener(e -> {
@@ -479,8 +485,11 @@ public class FirebaseDatabaseManager {
     }
     // --- PRODUCTS ---
     public void addProduct(Product product, OnCompleteListener<Void> listener) {
+        // Always add to SQLite
+        mSqliteHelper.addProduct(product);
         if (mAuth.getCurrentUser() == null) {
-            Log.e(TAG, "User not authenticated");
+            Log.e(TAG, "User not authenticated, skipping Firebase add");
+            if (listener != null) listener.onComplete(Tasks.forResult(null));
             return;
         }
         String userId = mAuth.getCurrentUser().getUid();
@@ -494,7 +503,6 @@ public class FirebaseDatabaseManager {
         mDatabase.child("users").child(userId).child("products").child(productId)
                 .setValue(productValues)
                 .addOnSuccessListener(aVoid -> {
-                    mSqliteHelper.addProduct(product);
                     if (listener != null) listener.onComplete(Tasks.forResult(null));
                 })
                 .addOnFailureListener(e -> {
@@ -530,5 +538,51 @@ public class FirebaseDatabaseManager {
     private void syncProductsToSQLite(List<Product> products) {
         mSqliteHelper.clearAllProducts();
         for (Product product : products) mSqliteHelper.addProduct(product);
+    }
+
+    // Sync all products from SQLite to Firebase
+    public void syncProductsSQLiteToFirebase(OnCompleteListener<Void> listener) {
+        if (mAuth.getCurrentUser() == null) {
+            Log.e(TAG, "Cannot sync products to Firebase: User not authenticated");
+            if (listener != null) {
+                listener.onComplete(Tasks.forException(new Exception("User not authenticated")));
+            }
+            return;
+        }
+        String userId = mAuth.getCurrentUser().getUid();
+        List<Product> sqliteProducts = mSqliteHelper.getAllProducts();
+        Log.d(TAG, "Syncing " + sqliteProducts.size() + " products from SQLite to Firebase");
+        if (sqliteProducts.isEmpty()) {
+            Log.d(TAG, "SQLite is empty, nothing to sync");
+            if (listener != null) {
+                listener.onComplete(Tasks.forResult(null));
+            }
+            return;
+        }
+        int[] completed = {0};
+        int total = sqliteProducts.size();
+        for (Product product : sqliteProducts) {
+            String productId = mDatabase.child("users").child(userId).child("products").push().getKey();
+            Map<String, Object> productValues = new HashMap<>();
+            productValues.put("name", product.getName());
+            productValues.put("brand", product.getBrand());
+            productValues.put("price", product.getPrice());
+            productValues.put("description", product.getDescription());
+            productValues.put("id", productId);
+            mDatabase.child("users").child(userId).child("products").child(productId)
+                .setValue(productValues)
+                .addOnSuccessListener(aVoid -> {
+                    completed[0]++;
+                    if (completed[0] == total && listener != null) {
+                        listener.onComplete(Tasks.forResult(null));
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    completed[0]++;
+                    if (completed[0] == total && listener != null) {
+                        listener.onComplete(Tasks.forException(e));
+                    }
+                });
+        }
     }
 } 

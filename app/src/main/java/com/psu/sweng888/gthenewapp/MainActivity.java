@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -34,6 +35,8 @@ import com.psu.sweng888.gthenewapp.fragments.LanguageFragment;
 import androidx.appcompat.app.AppCompatDelegate;
 import android.content.SharedPreferences;
 import android.app.AlertDialog;
+import android.widget.Button;
+import android.view.ViewGroup;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -105,6 +108,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 View headerView = mNavigationView.getHeaderView(0);
                 if (headerView != null) {
                     TextView usernameText = headerView.findViewById(R.id.nav_header_username);
+                    ImageView avatarImage = headerView.findViewById(R.id.nav_drawer_header_image);
+                    if (avatarImage != null) {
+                        avatarImage.setImageResource(R.drawable.ic_avatar_placeholder);
+                    }
                     if (usernameText != null) {
                         String username = getIntent().getStringExtra("username");
                         if (username != null) {

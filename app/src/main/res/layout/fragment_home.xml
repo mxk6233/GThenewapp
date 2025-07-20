@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:gravity="center"
     android:layout_width="match_parent"
@@ -11,42 +12,49 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/frag_home_welcome"
-        android:textSize="24sp"
+        android:textSize="28sp"
         android:textStyle="bold"
-        android:layout_marginBottom="32dp" />
+        android:layout_marginBottom="16dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="This is your home screen. Use the navigation drawer to access different features."
-        android:textSize="16sp"
+        android:text="Book E Commerce and Storage App"
+        android:textSize="18sp"
+        android:textStyle="bold"
         android:gravity="center"
         android:layout_marginBottom="32dp" />
 
-    <Button
-        android:id="@+id/test_button"
-        android:layout_width="wrap_content"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/send_email_button"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Test Button - Click Me!"
-        android:padding="16dp"
+        android:text="Send Email"
+        android:textSize="16sp"
+        android:icon="@drawable/ic_email"
+        app:iconPadding="8dp"
         android:layout_marginBottom="16dp"
-        android:background="@color/colorPrimary" />
+        style="@style/Widget.MaterialComponents.Button"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/populate_firebase_button"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Add Sample Books to Firebase"
-        android:padding="16dp"
+        android:textSize="16sp"
+        android:icon="@drawable/ic_download"
+        app:iconPadding="8dp"
         android:layout_marginBottom="16dp"
-        android:background="@color/colorPrimary" />
+        style="@style/Widget.MaterialComponents.Button"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/sync_sqlite_button"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Sync Local Books to Firebase"
-        android:padding="16dp"
-        android:background="@color/colorPrimary" />
+        android:textSize="16sp"
+        android:icon="@drawable/ic_sync"
+        app:iconPadding="8dp"
+        style="@style/Widget.MaterialComponents.Button"/>
 
 </LinearLayout>

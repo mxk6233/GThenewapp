@@ -11,6 +11,7 @@ public class Book implements Serializable {
     private String isbn;
     private String publisher;
     private int imageResourceId;
+    private String coverImageUri;
 
     public Book() {
     }
@@ -20,6 +21,14 @@ public class Book implements Serializable {
         this.author = author;
         this.isbn = isbn;
         this.publisher = publisher;
+    }
+
+    public Book(String title, String author, String isbn, String publisher, String coverImageUri) {
+        this.title = title;
+        this.author = author;
+        this.isbn = isbn;
+        this.publisher = publisher;
+        this.coverImageUri = coverImageUri;
     }
 
     //Getters and Setters
@@ -57,5 +66,13 @@ public class Book implements Serializable {
 
     public int getImageResourceId() {
         return R.drawable.ic_book;
+    }
+
+    public String getCoverImageUri() {
+        return coverImageUri;
+    }
+
+    public void setCoverImageUri(String coverImageUri) {
+        this.coverImageUri = coverImageUri;
     }
 }
