@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_home"
+            android:title="Home" />
+        
+        <item
+            android:id="@+id/nav_books"
+            android:icon="@drawable/ic_books"
+            android:title="Books" />
+        
+        <item
+            android:id="@+id/nav_podcasts"
+            android:icon="@drawable/ic_book"
+            android:title="Podcasts" />
+        
+        <item
+            android:id="@+id/nav_products"
+            android:icon="@drawable/ic_book"
+            android:title="Products" />
+        
+        <item
+            android:id="@+id/nav_add_book"
+            android:icon="@drawable/ic_add"
+            android:title="Add Book" />
+        
+        <item
+            android:id="@+id/nav_add_podcast"
+            android:icon="@drawable/ic_add"
+            android:title="Add Podcast" />
+        
+        <item
+            android:id="@+id/nav_add_product"
+            android:icon="@drawable/ic_add"
+            android:title="Add Product" />
+    </group>
+    
+    <group android:id="@+id/nav_group_account">
+        <item
+            android:id="@+id/nav_account"
+            android:icon="@drawable/ic_account"
+            android:title="My Account" />
+        <item
+            android:id="@+id/nav_language"
+            android:icon="@drawable/ic_language"
+            android:title="Language" />
+        <item
+            android:id="@+id/nav_dark_mode"
+            android:icon="@drawable/ic_night"
+            android:title="Dark Mode" />
+    </group>
+    
+    <group android:id="@+id/nav_group_logout">
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/ic_logout"
+            android:title="Logout" />
+    </group>
+
+</menu> 

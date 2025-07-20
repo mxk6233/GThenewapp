@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">GThenewapp</string>
+    
+    <!-- Fragment strings -->
+    <string name="frag_home_welcome">Welcome to GThenewapp!</string>
+    <string name="frag_books_list_welcome">Books List</string>
+    <string name="frag_add_book_welcome">Add New Book</string>
+    
+    <!-- Add Book Fragment -->
+    <string name="frag_text_view_title">Book Title</string>
+    <string name="frag_text_view_author">Author</string>
+    <string name="frag_text_view_isbn">ISBN</string>
+    <string name="frag_text_view_publisher">Publisher</string>
+    <string name="frag_button_confirm">Confirm</string>
+    <string name="frag_button_clear">Clear</string>
+    
+    <!-- Navigation Drawer -->
+    <string name="nav_drawer_title">GThenewapp</string>
+    <string name="nav_drawer_subtitle">Book Management</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+</resources>

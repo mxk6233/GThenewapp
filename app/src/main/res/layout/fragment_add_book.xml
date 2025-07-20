@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp">
+    <EditText
+        android:id="@+id/input_book_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Book Title"
+        android:layout_marginBottom="16dp"/>
+    <EditText
+        android:id="@+id/input_book_author"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Author"
+        android:layout_marginBottom="16dp"/>
+    <EditText
+        android:id="@+id/input_book_isbn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="ISBN"
+        android:layout_marginBottom="16dp"/>
+    <EditText
+        android:id="@+id/input_book_publisher"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Publisher"
+        android:layout_marginBottom="24dp"/>
+    <Button
+        android:id="@+id/save_book_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Book"/>
+</LinearLayout>

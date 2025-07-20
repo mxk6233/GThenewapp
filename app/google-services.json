@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "427875931624",
+    "project_id": "gthenewapp",
+    "storage_bucket": "gthenewapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:427875931624:android:a3e71b348645ec6769805d",
+        "android_client_info": {
+          "package_name": "com.psu.sweng888.gthenewapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfTGmE2fjs4ApFxQhhSD7bJFHT860A-Wk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:427875931624:android:821cf1229009423469805d",
+        "android_client_info": {
+          "package_name": "edu.psu.sweng888.lessonfive_fragmentsui"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfTGmE2fjs4ApFxQhhSD7bJFHT860A-Wk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
