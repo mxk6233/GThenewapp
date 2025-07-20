@@ -19,4 +19,7 @@
     <string name="nav_drawer_subtitle">Book Management</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="load_data">Load Data</string>
+    <string name="sync_with_firebase">Sync with Firebase</string>
+    <string name="push_to_firebase">Push to Firebase</string>
 </resources>

@@ -28,10 +28,14 @@ public class PodcastAdapter extends RecyclerView.Adapter<PodcastAdapter.PodcastV
     @Override
     public void onBindViewHolder(@NonNull PodcastViewHolder holder, int position) {
         Podcast podcast = podcastList.get(position);
-        holder.title.setText(podcast.getTitle());
-        holder.host.setText(podcast.getHost());
-        holder.episodeCount.setText("Episodes: " + podcast.getEpisodeCount());
-        holder.publisher.setText(podcast.getPublisher());
+        try {
+            holder.title.setText(podcast.getTitle() != null ? podcast.getTitle() : "(No Title)");
+            holder.host.setText(podcast.getHost() != null ? podcast.getHost() : "(No Host)");
+            holder.episodeCount.setText("Episodes: " + podcast.getEpisodeCount());
+            holder.publisher.setText(podcast.getPublisher() != null ? podcast.getPublisher() : "(No Publisher)");
+        } catch (Exception e) {
+            android.util.Log.e("PodcastAdapter", "Error binding podcast at position " + position + ": " + e.getMessage(), e);
+        }
     }
     @Override
     public int getItemCount() { return podcastList.size(); }

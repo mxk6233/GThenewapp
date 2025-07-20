@@ -28,10 +28,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     @Override
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
         Product product = productList.get(position);
-        holder.name.setText(product.getName());
-        holder.brand.setText(product.getBrand());
-        holder.price.setText("$" + String.format("%.2f", product.getPrice()));
-        holder.description.setText(product.getDescription());
+        try {
+            holder.name.setText(product.getName() != null ? product.getName() : "(No Name)");
+            holder.brand.setText(product.getBrand() != null ? product.getBrand() : "(No Brand)");
+            holder.price.setText("$" + String.format("%.2f", product.getPrice()));
+            holder.description.setText(product.getDescription() != null ? product.getDescription() : "(No Description)");
+        } catch (Exception e) {
+            android.util.Log.e("ProductAdapter", "Error binding product at position " + position + ": " + e.getMessage(), e);
+        }
     }
     @Override
     public int getItemCount() { return productList.size(); }

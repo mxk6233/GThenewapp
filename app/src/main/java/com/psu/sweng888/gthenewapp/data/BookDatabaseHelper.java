@@ -13,7 +13,7 @@ import java.util.List;
 public class BookDatabaseHelper extends SQLiteOpenHelper {
     private static final String TAG = "BookDatabaseHelper";
     private static final String DATABASE_NAME = "bookstore_database";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2; // Bumped version to force upgrade
     private static final String TABLE_BOOKS = "books";
     private static final String KEY_ID = "id";
     private static final String KEY_TITLE = "title";
@@ -56,11 +56,10 @@ public class BookDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 2){
-            /** Update the database to version 2.
-             *  You may need to create new colums or add new tables to the database.
-             */
-        }
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOKS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCASTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);
+        onCreate(db);
     }
 
     /** Query to Create the Database*/
@@ -186,10 +185,11 @@ public class BookDatabaseHelper extends SQLiteOpenHelper {
 
     public void populateMoviesDatabase(){
         Log.d(TAG, "Populating database with sample books");
-        addBook(new Book("Atomic Habits 1", "James Clear", "0735211299", "Avery"));
-        addBook(new Book("Android Programming", "Bryan Sills and Brian Gardner", "0137645546", "Addison-Wesley"));
-        addBook(new Book("Software Architecture in Practice", "Less Bass and Paul Clements", "0136886094", "Addison-Wesley"));
-        addBook(new Book("Rich Dad, Poor Dad", "Robert Kiyosaki", "1612681131", "Plata Publishing"));
+        addBook(new Book("Atomic Habits", "James Clear", "0735211299", "Avery"));
+        addBook(new Book("Clean Code", "Robert C. Martin", "9780132350884", "Prentice Hall"));
+        addBook(new Book("The Pragmatic Programmer", "Andrew Hunt, David Thomas", "9780201616224", "Addison-Wesley"));
+        addBook(new Book("Design Patterns", "Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides", "9780201633610", "Addison-Wesley"));
+        addBook(new Book("Introduction to Algorithms", "Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, Clifford Stein", "9780262033848", "MIT Press"));
         Log.d(TAG, "Sample books added to database");
     }
 
@@ -260,6 +260,7 @@ public class BookDatabaseHelper extends SQLiteOpenHelper {
         addPodcast(new Podcast("How I Built This", "Guy Raz", 500, "NPR"));
         addPodcast(new Podcast("Science Vs", "Wendy Zukerman", 300, "Gimlet"));
         addPodcast(new Podcast("99% Invisible", "Roman Mars", 500, "PRX"));
+        addPodcast(new Podcast("Radiolab", "Jad Abumrad, Robert Krulwich", 600, "WNYC Studios"));
         Log.d(TAG, "Sample podcasts added to database");
     }
 
@@ -318,10 +319,11 @@ public class BookDatabaseHelper extends SQLiteOpenHelper {
     }
     public void populateProductsDatabase() {
         Log.d(TAG, "Populating database with sample products");
-        addProduct(new Product("iPhone 15", "Apple", 999.99, "Latest Apple smartphone"));
-        addProduct(new Product("Galaxy S23", "Samsung", 899.99, "Flagship Samsung phone"));
-        addProduct(new Product("MacBook Pro", "Apple", 1999.99, "Apple laptop"));
-        addProduct(new Product("Surface Pro 9", "Microsoft", 1299.99, "Microsoft 2-in-1 laptop"));
+        addProduct(new Product("iPhone 15 Pro Max", "Apple", 1199.99, "Flagship Apple smartphone with A17 chip, 6.7-inch display, triple camera system."));
+        addProduct(new Product("Galaxy S23 Ultra", "Samsung", 1099.99, "Samsung's top-tier phone with S Pen, 200MP camera, 6.8-inch AMOLED display."));
+        addProduct(new Product("MacBook Pro 16-inch", "Apple", 2499.99, "Apple laptop with M2 Pro chip, 16-inch Retina display, 1TB SSD."));
+        addProduct(new Product("Surface Pro 9", "Microsoft", 1399.99, "Microsoft 2-in-1 laptop/tablet, 13-inch touchscreen, Intel Evo platform."));
+        addProduct(new Product("Sony WH-1000XM5", "Sony", 399.99, "Industry-leading noise-canceling wireless headphones, 30-hour battery life."));
         Log.d(TAG, "Sample products added to database");
     }
 }

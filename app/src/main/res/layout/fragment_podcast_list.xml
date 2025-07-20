@@ -4,21 +4,77 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp">
-    <TextView
-        android:id="@+id/podcast_list_header"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Podcasts List"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp" />
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/podcast_search_view"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:queryHint="Search podcasts..."
-        android:iconifiedByDefault="false"
-        android:layout_marginBottom="8dp" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp">
+
+        <TextView
+            android:id="@+id/podcast_list_header"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Podcasts List"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/refresh_button"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="Refresh"
+            android:textSize="12sp"
+            android:padding="4dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:background="@color/colorPrimary" />
+
+        <Button
+            android:id="@+id/load_data_button"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="Load Data"
+            android:textSize="12sp"
+            android:padding="4dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:background="@color/colorPrimary" />
+
+        <Button
+            android:id="@+id/sync_firebase_button"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="Sync with Firebase"
+            android:textSize="12sp"
+            android:padding="4dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:background="@color/colorPrimary" />
+
+        <Button
+            android:id="@+id/push_firebase_button"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="Push to Firebase"
+            android:textSize="12sp"
+            android:padding="4dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:background="@color/colorPrimary" />
+    </LinearLayout>
+    <AutoCompleteTextView
+        android:id="@+id/podcast_search_autocomplete"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:hint="Search podcasts..."
+        android:layout_marginBottom="4dp"
+        android:inputType="text"
+        android:textSize="14sp"
+        android:padding="4dp" />
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
