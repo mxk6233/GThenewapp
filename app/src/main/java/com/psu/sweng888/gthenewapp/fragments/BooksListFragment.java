@@ -68,9 +68,6 @@ public class BooksListFragment extends Fragment {
         if (refreshButton != null) {
             refreshButton.setOnClickListener(v -> {
                 Log.d(TAG, "Refresh button clicked");
-                // First test RecyclerView with dummy data
-                testRecyclerView();
-                // Then try to load real data
                 refreshBooks();
             });
             
@@ -84,7 +81,13 @@ public class BooksListFragment extends Fragment {
         
         Button loadDummyButton = view.findViewById(R.id.load_data_button);
         if (loadDummyButton != null) {
-            loadDummyButton.setOnClickListener(v -> testRecyclerView());
+            loadDummyButton.setOnClickListener(v -> {
+                Log.d(TAG, "Load Data button clicked - populating database with sample books");
+                bookDatabaseHelper.clearAllBooks();
+                bookDatabaseHelper.populateMoviesDatabase();
+                loadBooks(autoAdapter);
+                Toast.makeText(getActivity(), "Sample books loaded!", Toast.LENGTH_SHORT).show();
+            });
         }
         
         Button syncFirebaseButton = view.findViewById(R.id.sync_firebase_button);
@@ -183,16 +186,35 @@ public class BooksListFragment extends Fragment {
     }
     
     private void loadBooks(ArrayAdapter<String> autoAdapter) {
-        Log.d(TAG, "Loading books from SQLite only (ignore Firebase)");
+        Log.d(TAG, "Loading books from SQLite...");
+        // First check if database is empty and populate if needed
+        if (bookDatabaseHelper.isDatabaseEmpty()) {
+            Log.d(TAG, "Database is empty, populating with sample data...");
+            bookDatabaseHelper.populateMoviesDatabase();
+        }
         List<Book> books = bookDatabaseHelper.getAllRecords();
+        Log.d(TAG, "Retrieved " + books.size() + " books from SQLite");
+        for (Book b : books) {
+            Log.d(TAG, "Book: " + b.getTitle() + ", " + b.getAuthor() + ", " + b.getIsbn() + ", " + b.getPublisher());
+        }
         final List<Book> finalBooks = books;
         getActivity().runOnUiThread(() -> {
-            bookAdapter = new BookAdapter(finalBooks);
-            mRecyclerView.setAdapter(bookAdapter);
-            autoAdapter.clear();
-            for (Book b : finalBooks) autoAdapter.add(b.getTitle() + " — " + b.getAuthor() + " — " + b.getIsbn() + " — " + b.getPublisher());
-            autoAdapter.notifyDataSetChanged();
-            Log.d(TAG, "Displaying " + finalBooks.size() + " books from SQLite");
+            Toast.makeText(getActivity(), "DEBUG: Found " + finalBooks.size() + " books in database", Toast.LENGTH_LONG).show();
+            if (finalBooks.isEmpty()) {
+                Log.w(TAG, "No books found, showing empty state");
+                Toast.makeText(getActivity(), "No books found. Use 'Load Data' to add sample books.", Toast.LENGTH_LONG).show();
+            } else {
+                Log.d(TAG, "Setting up adapter with " + finalBooks.size() + " books");
+                bookAdapter = new BookAdapter(finalBooks);
+                mRecyclerView.setAdapter(bookAdapter);
+                // Update search autocomplete
+                autoAdapter.clear();
+                for (Book b : finalBooks) {
+                    autoAdapter.add(b.getTitle() + " — " + b.getAuthor() + " — " + b.getIsbn() + " — " + b.getPublisher());
+                }
+                autoAdapter.notifyDataSetChanged();
+                Toast.makeText(getActivity(), "Loaded " + finalBooks.size() + " books", Toast.LENGTH_SHORT).show();
+            }
         });
     }
     
@@ -291,8 +313,12 @@ public class BooksListFragment extends Fragment {
     
     // Public method to refresh the books list
     public void refreshBooks() {
-        Log.d(TAG, "Refreshing books list (SQLite only)...");
-        loadBooks(autoAdapter);
+        Log.d(TAG, "Refreshing books list...");
+        if (autoAdapter != null) {
+            loadBooks(autoAdapter);
+        } else {
+            Log.e(TAG, "autoAdapter is null, cannot refresh books");
+        }
     }
 
     // Method to reset the entire database
@@ -300,8 +326,10 @@ public class BooksListFragment extends Fragment {
         Log.d(TAG, "Resetting database...");
         bookDatabaseHelper.clearAllBooks();
         Log.d(TAG, "Database cleared.");
-        Toast.makeText(getActivity(), "Database reset.", Toast.LENGTH_SHORT).show();
-        loadBooks(autoAdapter); // Reload data after reset
+        Toast.makeText(getActivity(), "Database reset. Use 'Load Data' to add sample books.", Toast.LENGTH_LONG).show();
+        if (autoAdapter != null) {
+            loadBooks(autoAdapter); // Reload data after reset
+        }
     }
 
     private void showEditDeleteDialog(Book book) {

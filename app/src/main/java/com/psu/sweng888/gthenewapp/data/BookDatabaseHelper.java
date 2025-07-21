@@ -13,7 +13,7 @@ import java.util.List;
 public class BookDatabaseHelper extends SQLiteOpenHelper {
     private static final String TAG = "BookDatabaseHelper";
     private static final String DATABASE_NAME = "bookstore_database";
-    private static final int DATABASE_VERSION = 2; // Bumped version to force upgrade
+    private static final int DATABASE_VERSION = 3; // Bumped version to force upgrade
     private static final String TABLE_BOOKS = "books";
     private static final String KEY_ID = "id";
     private static final String KEY_TITLE = "title";
@@ -56,6 +56,7 @@ public class BookDatabaseHelper extends SQLiteOpenHelper {
         Log.d(TAG, "Database table created successfully");
         db.execSQL(createPodcastsTable());
         db.execSQL(createProductsTable());
+        android.widget.Toast.makeText(mContext, "Book DB onCreate: Tables created", android.widget.Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -64,6 +65,7 @@ public class BookDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PODCASTS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);
         onCreate(db);
+        android.widget.Toast.makeText(mContext, "Book DB onUpgrade: Tables dropped and recreated", android.widget.Toast.LENGTH_LONG).show();
     }
 
     /** Query to Create the Database*/
@@ -116,9 +118,9 @@ public class BookDatabaseHelper extends SQLiteOpenHelper {
         long result = database.insert(TABLE_BOOKS, null, values);
         Log.d(TAG, "Book insert result: " + result + " (row ID)");
         if (result == -1) {
-            android.widget.Toast.makeText(mContext, "Failed to add book to SQLite", android.widget.Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Failed to add book to SQLite: " + book.getTitle());
         } else {
-            android.widget.Toast.makeText(mContext, "Book added to SQLite!", android.widget.Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Book added to SQLite successfully: " + book.getTitle());
         }
         /** Close the connection with the database */
         database.close();

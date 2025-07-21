@@ -7,6 +7,16 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <ImageView
+        android:id="@+id/nav_header_book_image"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/ic_book"
+        android:scaleType="centerCrop"
+        android:background="@drawable/circle_white_border"
+        android:contentDescription="Book Cover" />
+
     <TextView
         android:id="@+id/nav_header_username"
         android:layout_width="wrap_content"
@@ -14,7 +24,5 @@
         android:text="User Email"
         android:textColor="@android:color/white"
         android:textSize="18sp" />
-    View headerView = mNavigationView.getHeaderView(0);
-    TextView usernameText = headerView.findViewById(R.id.nav_header_username);
 
 </LinearLayout>
